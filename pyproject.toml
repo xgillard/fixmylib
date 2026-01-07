@@ -1,0 +1,20 @@
+[project]
+name = "mk-lib"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.14.2"
+dependencies = [
+    "levenshtein>=0.27.3",
+    "pandas>=2.3.3",
+]
+
+[tool.pyright]
+# Dites à Pyright d'utiliser le venv créé par uv pour les libs tierces
+venvPath = "."
+venv = ".venv"
+
+# Ajoutez ici les chemins récupérés à l'étape 1
+extraPaths = [
+    "/usr/lib64/calibre", 
+]
