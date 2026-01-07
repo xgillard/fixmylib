@@ -22,6 +22,8 @@ import re  # noqa: E402
 import shutil  # noqa: E402
 import subprocess  # noqa: E402
 import sys  # noqa: E402
+
+from tqdm import tqdm  # noqa: E402
 from unidecode import unidecode  # noqa: E402
 
 import pandas as pd  # noqa: E402
@@ -180,16 +182,17 @@ def fix_filename(path: Path, root: Path, mi: Metadata):
     pubinfo = f"{publisher}-{pubyr}"
 
     # normalize title
-    title = mi.title.lower()
-    title = re.sub("['\"]", " ", title)
-    title = re.sub("[&!|)(:,-]", "", title)
-    title = re.sub(r"\s+", " ", title)
+    title = mi.title.replace("-", "")
     # structured fname
     struct_name = f"{title}-{authors}-{pubinfo}{suffix}"
     struct_name = unidecode(struct_name.lower().replace(" ", "_"))
+    struct_name = re.sub("['\"]", " ", struct_name)
+    struct_name = re.sub("[&!|)(:,></]", "", struct_name)
+    struct_name = re.sub(r"\s+", " ", struct_name)
 
     if mi.series:
-        dst = dst / mi.series / f"{mi.series_index:05d}-{struct_name}"
+        idx = int(mi.series_index) if mi.series_index else 0
+        dst = dst / mi.series / f"{idx:05d}-{struct_name}"
     else:
         dst = dst / struct_name
 
@@ -205,7 +208,7 @@ def fix_library(inpath: Path, outpath: Path):
     et stocke les fichiers corrigés dans le dossier de sortie."""
     db = load_database()
 
-    for fn in inpath.glob("**/*"):
+    for fn in tqdm(inpath.glob("**/*")):
         if fn.suffix in [".epub", ".pdf", ".mobi", ".azw3"]:
             mi = fix_meta(Path(fn), db)
             fix_filename(Path(fn), outpath, mi)
