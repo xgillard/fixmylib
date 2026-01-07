@@ -7,6 +7,7 @@ requires-python = "==3.14.2"
 dependencies = [
     "levenshtein>=0.27.3",
     "pandas>=2.3.3",
+    "unidecode>=1.4.0",
 ]
 
 [tool.pyright]

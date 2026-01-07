@@ -18,10 +18,11 @@ from foeffel import init
 init()
 
 import json  # noqa: E402
+import re  # noqa: E402
 import shutil  # noqa: E402
 import subprocess  # noqa: E402
 import sys  # noqa: E402
-import re  # noqa: E402
+from unidecode import unidecode  # noqa: E402
 
 import pandas as pd  # noqa: E402
 from pathlib import (  # noqa: E402
@@ -178,8 +179,14 @@ def fix_filename(path: Path, root: Path, mi: Metadata):
     pubyr = mi.pubdate.year if mi.pubdate else "unk-date"
     pubinfo = f"{publisher}-{pubyr}"
 
+    # normalize title
+    title = mi.title.lower()
+    title = re.sub("['\"]", " ", title)
+    title = re.sub("[&!|)(:,-]", "", title)
+    title = re.sub(r"\s+", " ", title)
     # structured fname
-    struct_name = f"{mi.title}-{authors}-{pubinfo}{suffix}"
+    struct_name = f"{title}-{authors}-{pubinfo}{suffix}"
+    struct_name = unidecode(struct_name.lower().replace(" ", "_"))
 
     if mi.series:
         dst = dst / mi.series / f"{mi.series_index:05d}-{struct_name}"
