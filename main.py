@@ -46,6 +46,29 @@ from calibre.ebooks.metadata.book.base import (  # noqa: E402
     Metadata,
 )
 
+AUTHORIZED_TAGS = [
+    "3D",
+    "AI",
+    "Bouffe",
+    "Cloud",
+    "Comics",
+    "Data Science",
+    "Economie",
+    "Guide",
+    "Litterature",
+    "Management",
+    "Manga",
+    "Minecraft",
+    "Misc",
+    "Programming",
+    "Robotique",
+    "Secu",
+    "Tir Sportif",
+]
+
+TAGS = {t.lower(): t for t in AUTHORIZED_TAGS}
+TAGS.update({t: t for t in AUTHORIZED_TAGS})
+
 
 def load_database():
     """On charge la db calibre dans un dataframe.
@@ -148,12 +171,20 @@ def fix_meta(path: Path, db: pd.DataFrame):
     return mi
 
 
+def main_tag(tags):
+    tags = [] if not tags else tags
+    for t in tags:
+        if t in TAGS:
+            return TAGS[t]
+    return "unsorted"
+
+
 def fix_filename(path: Path, root: Path, mi: Metadata):
     """Copie le fichier dans un nouveau directory en lui donnant un nom
     canonique qui dépend de ses métadonnées."""
     suffix = path.suffix
     # category
-    category = min(mi.tags) if mi.tags else "unsorted"
+    category = main_tag(mi.tags)
     dst = root / category
 
     # authors
